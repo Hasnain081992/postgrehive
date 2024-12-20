@@ -3,7 +3,7 @@ from pyspark.sql.functions import *
 from pyspark.sql import functions as F
 
 spark = SparkSession.builder.master("local").appName("Incrementalhive").enableHiveSupport().getOrCreate()
-max_id = spark.sql("SELECT max(id) FROM bigdata_nov_2024.person")
+max_id = spark.sql("SELECT max(id) FROM bigdata_nov_2024.hasan_person")
 m_id = max_id.collect()[0][0]
 str(m_id)
 
