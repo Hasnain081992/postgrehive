@@ -21,7 +21,7 @@ more_data = spark.read.format("jdbc") \
 
 # Sort the DataFrame by ID
 more_data.show()
-more_data.write.mode("append").saveAsTable("bigdata_nov_2024.person")
+more_data.write.mode("append").saveAsTable("bigdata_nov_2024.hasan_person")
 print("Successfully Load to Hive")
 
 # spark-submit --master local[*] --jars /var/lib/jenkins/workspace/nagaranipysparkdryrun/lib/postgresql-42.5.3.jar src/IncreamentalLoadPostgressToHive.py
