@@ -13,7 +13,7 @@ jdbc_properties = {
 }
 table_name = "person"
 hive_table = "bigdata_nov_2024.person_full_load"
-
+#done
 try:
     # Step 1: Load data from PostgreSQL
     df = spark.read.format("jdbc").options(
