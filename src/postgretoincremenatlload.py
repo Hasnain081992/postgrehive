@@ -1,12 +1,13 @@
 from pyspark.sql import *
 from pyspark.sql.functions import *
+from pyspark.sql import functions as F
 
 spark = SparkSession.builder.master("local").appName("Incrementalhive").enableHiveSupport().getOrCreate()
 max_id = spark.sql("SELECT max(id) FROM bigdata_nov_2024.person")
 m_id = max_id.collect()[0][0]
 str(m_id)
 
-query = 'SELECT * FROM person WHERE "ID" > ' + str(m_id)
+query = 'SELECT * FROM person WHERE id > ' + str(m_id)
 
 more_data = spark.read.format("jdbc") \
     .option("url", "jdbc:postgresql://18.132.73.146:5432/testdb") \
