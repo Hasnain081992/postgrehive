@@ -1,46 +1,33 @@
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import col
+from pyspark.sql import *
+from pyspark.sql.functions import *
 
-# Step 1: Initialize SparkSession
-spark = SparkSession.builder \
-    .master("local") \
-    .appName("IncrementalLoadWithChanges") \
-    .enableHiveSupport() \
-    .getOrCreate()
+spark = SparkSession.builder.master("local").appName("Incrementalhive").enableHiveSupport().getOrCreate()
+max_id = spark.sql("SELECT max(id) FROM bigdata_nov_2024.person")
+m_id = max_id.collect()[0][0]
+str(m_id)
 
-# Step 2: Load existing data from Hive
-hive_table = "bigdata_nov_2024.hasan_vechile_sales"
-try:
-    hive_df = spark.sql(f"SELECT * FROM {hive_table}")
-    print("Existing data loaded from Hive.")
-except Exception as e:
-    hive_df = None
-    print(f"Hive table not found or empty: {e}. Proceeding with a full load.")
+query = 'SELECT * FROM person WHERE "ID" > ' + str(m_id)
 
-# Step 3: Load full data from PostgreSQL
-df_postgres = spark.read.format("jdbc") \
+more_data = spark.read.format("jdbc") \
     .option("url", "jdbc:postgresql://18.132.73.146:5432/testdb") \
     .option("driver", "org.postgresql.Driver") \
-    .option("dbtable", "vechile_sales") \
     .option("user", "consultants") \
     .option("password", "WelcomeItc@2022") \
+    .option("query", query) \
     .load()
 
-# Step 4: Identify incremental changes
-if hive_df:
-    # Perform a join to find rows with changes
-    incremental_df = df_postgres.alias("src").join(
-        hive_df.alias("tgt"),
-        on=["id"],  # Assuming 'id' is the unique key
-        how="leftanti"  # Select rows that do not match
-    ).select("src.*")  # Fetch the source rows with changes
-else:
-    # No existing data, load everything
-    incremental_df = df_postgres
 
-# Step 5: Write the changes to Hive
-if not incremental_df.rdd.isEmpty():
-    incremental_df.write.mode("overwrite").saveAsTable(hive_table)
-    print("Incremental data successfully loaded to Hive.")
-else:
-    print("No changes detected. Hive table is up-to-date.")
+
+# Sort the DataFrame by ID
+more_data.show()
+more_data.write.mode("append").saveAsTable("bigdata_nov_2024.person")
+print("Successfully Load to Hive")
+
+# spark-submit --master local[*] --jars /var/lib/jenkins/workspace/nagaranipysparkdryrun/lib/postgresql-42.5.3.jar src/IncreamentalLoadPostgressToHive.py
+
+# df2 = spark.read.csv("path/to/other_file.csv", header=True, inferSchema=True)
+# joined_df = df.join(df2, on=["ID"], how="inner")
+
+# df1.write.mode("overwrite").saveAsTable("product.dummy")
+# hadoop fs -chmod -R 775 /warehouse/tablespace/external/hive/product.db/emp_info
+# sudo -u hdfs hdfs dfs -chmod -R 777 /warehouse/tablespace/external/hive/product.db
