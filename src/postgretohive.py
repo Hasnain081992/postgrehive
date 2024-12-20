@@ -8,7 +8,7 @@ df.printSchema()
 
 
 
-df.write.mode("overwrite").saveAsTable("hasnainitc.vechile_sales")
+df.write.mode("overwrite").saveAsTable("bigdata_nov_2024.hasan_vechile_sales")
 print("Successfully Load to Hive")
 
 # spark-submit --master local[*] --jars /var/lib/jenkins/workspace/nagaranipysparkdryrun/lib/postgresql-42.5.3.jar src/FirstLoadPostgressToHive.py
